@@ -1,11 +1,12 @@
 <script lang="ts">
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur.png?enhanced&w=373"
-  import { createQuery } from "@tanstack/svelte-query"
-  const query = createQuery({
-    queryKey: ["ads"],
-    queryFn: async () => (await fetch("../api")).json(),
-  })
+  // import { createQuery } from "@tanstack/svelte-query"
+  // const query = createQuery({
+  //   queryKey: ["ads_combined"],
+  //   queryFn: async () => (await fetch("api")).json(),
+  // })
+
   const features = [
     {
       name: "Billing Portal",
@@ -26,17 +27,15 @@
   <meta name="description" content="{WebsiteName} Home Page" />
 </svelte:head>
 
-<div>
-  {#if $query.isFetching}
-    <p>Loading...</p>
-  {:else if $query.isError}
-    <p>Error: {$query.error.message}</p>
-  {:else if $query.isSuccess}
-    {#each $query.data as ad}
+<!-- <div>
+  {#if $query.data && Array.isArray($query.data.combined)}
+    {#each $query.data.combined as ad}
       <p>{ad.price}</p>
     {/each}
+  {:else}
+    <p>Ładowanie danych lub brak danych.</p>
   {/if}
-</div>
+</div> -->
 
 <div class="hero min-h-[60vh]">
   <div class="hero-content text-center py-12">
