@@ -4,19 +4,36 @@ import { json } from '@sveltejs/kit';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-export async function GET() {
+// Mapowanie kategorii na nazwy tabel
+const categoryToTableMap = {
+  'rental': 'ads_rent',
+  'sales': 'ads_sell',
+  // Dodaj tutaj więcej kategorii w przyszłości
+};
+
+export async function GET({ url }) {
+    const category = url.searchParams.get('category');
+
     try {
-        const [rentResponse, sellResponse] = await Promise.all([
-            supabase.from('ads_rent').select().order('created_at', { ascending: false }).limit(10),
-            supabase.from('ads_sell').select().order('created_at', { ascending: false }).limit(10)
-        ]);
-
-        const adsRent = rentResponse.data.map(ad => ({ ...ad, section: 'rental' }));
-        const adsSell = sellResponse.data.map(ad => ({ ...ad, section: 'sales' }));
-
-        const combinedData = [...adsRent, ...adsSell];
-
-        return json({combined: combinedData, rent: adsRent, sell: adsSell});
+        // Obsługa zapytania dla wszystkich kategorii
+        if (category === '/') {
+            const responses = await Promise.all(Object.values(categoryToTableMap).map(tableName =>
+                supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9)
+            ));
+            
+            const combinedResponse = responses.flatMap(response => response.data);
+            return json(combinedResponse);
+        } else {
+            // Sprawdzenie, czy kategoria odpowiada znanej tabeli
+            const tableName = categoryToTableMap[category];
+            if (!tableName) {
+                return json({ error: 'Invalid category provided' }, { status: 400 });
+            }
+            
+            // Logika dla pojedynczej kategorii
+            const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9);
+            return json(response.data);
+        }
     } catch (error) {
         return json({ error: error.message }, { status: 500 });
     }

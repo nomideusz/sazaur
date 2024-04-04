@@ -1,15 +1,19 @@
-export const prerender = false
-// W pliku +page.ts lub __layout.ts na stronie głównej
+import { fetchAdsForCategories } from './api/helpers.js';
+
 export async function load({ fetch, parent }) {
   const { queryClient } = await parent();
 
+  // Cachowanie danych dla 'sales'
   await queryClient.prefetchQuery({
-    queryKey: ['ads_combined'],
-    queryFn: async () => {
-      const response = await fetch('api');
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
-    },
+    queryKey: ['ads', 'sales'],
+    queryFn: () => fetchAdsForCategories('sales', { fetch }),
   });
-  return {};
+
+  // Cachowanie danych dla 'rental'
+  await queryClient.prefetchQuery({
+    queryKey: ['ads', 'rental'],
+    queryFn: () => fetchAdsForCategories('rental', { fetch }),
+  });
 }
+
+

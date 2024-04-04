@@ -10,6 +10,7 @@
   import { expoOut } from "svelte/easing"
   import { slide } from "svelte/transition"
   import { QueryClientProvider } from "@tanstack/svelte-query"
+  import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools"
   import type { LayoutData } from "./$types"
 
   export let data: LayoutData
@@ -37,6 +38,7 @@
     <ul class="menu menu-horizontal px-1 hidden sm:flex font-bold text-lg">
       <li class="md:mx-2"><a href="/sales">Sprzedaż</a></li>
       <li class="md:mx-2"><a href="/rental">Wynajem</a></li>
+      <li class="md:mx-2"><a href="/potato">Potato</a></li>
       <li class="md:mx-2"><a href="/pricing">Pricing</a></li>
       <li class="md:mx-2"><a href="/account">Account</a></li>
     </ul>
@@ -73,8 +75,11 @@
 </div>
 
 <QueryClientProvider client={data.queryClient}>
-  <div class="">
+  <div class="mx-auto">
     <slot />
+    <SvelteQueryDevtools initialIsOpen>
+      {showDevtools}
+    </SvelteQueryDevtools>
   </div>
 </QueryClientProvider>
 
