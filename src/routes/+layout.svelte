@@ -38,7 +38,6 @@
     <ul class="menu menu-horizontal px-1 hidden sm:flex font-bold text-lg">
       <li class="md:mx-2"><a href="/sales">Sprzedaż</a></li>
       <li class="md:mx-2"><a href="/rental">Wynajem</a></li>
-      <li class="md:mx-2"><a href="/potato">Potato</a></li>
       <li class="md:mx-2"><a href="/pricing">Pricing</a></li>
       <li class="md:mx-2"><a href="/account">Account</a></li>
     </ul>
