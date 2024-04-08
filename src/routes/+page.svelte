@@ -2,16 +2,16 @@
   import { onMount } from "svelte"
   import { createQuery, useQueryClient } from "@tanstack/svelte-query"
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
-  import { fetchAdsForCategories } from "./api/helpers"
+  import { fetchAdsForCategories } from "./helpers"
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur.png?enhanced&w=373"
   import { Button } from "bits-ui"
   let queryClient = useQueryClient()
-  const categories = ["rental", "sales"]
-  $: ads = createQuery({
-    queryKey: ["ads", ...categories], // Rozwinięcie tablicy kategorii do klucza zapytania
-    queryFn: () => fetchAdsForCategories(...categories),
-  })
+  // const categories = ["rental", "sales"]
+  // $: ads = createQuery({
+  //   queryKey: ["ads", ...categories], // Rozwinięcie tablicy kategorii do klucza zapytania
+  //   queryFn: () => fetchAdsForCategories("rental"),
+  // })
 
   onMount(() => {
     subscribeToAds(queryClient)

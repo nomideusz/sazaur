@@ -16,7 +16,7 @@ export async function GET({ url }) {
 
     try {
         // Obsługa zapytania dla wszystkich kategorii
-        if (category === '/') {
+        if (category === '/' || category === null) {
             const responses = await Promise.all(Object.values(categoryToTableMap).map(tableName =>
                 supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9)
             ));

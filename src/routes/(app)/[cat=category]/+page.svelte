@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fetchAdsForCategories } from "../../api/helpers"
+  import { fetchAdsForCategories } from "../../helpers"
 
   import {
     createTable,
@@ -33,12 +33,12 @@
   // const ads = await queryClient.ensureQueryData({ queryKey, queryFn })
 
   // const ads = queryClient.getQueryData(["ads", $page.params.cat])
-  $: $page.params.cat,
-    () => {
-      const cat = $page.params.cat // 'sales' lub 'rental'
-      const cachedData = queryClient.getQueryData(["ads", cat])
-      ads.set(cachedData)
-    }
+  // $: $page.params.cat,
+  //   () => {
+  //     const cat = $page.params.cat // 'sales' lub 'rental'
+  //     const cachedData = queryClient.getQueryData(["ads", cat])
+  //     ads.set(cachedData)
+  //   }
 
   // $: ads = createQuery({
   //   queryKey: ["ads", $page.params.cat],
@@ -114,9 +114,9 @@
   </tbody>
 </table> -->
 
-{#if $ads}
+{#if $ads.data}
   <!-- Wyświetl dane reklam -->
-  {#each $ads as ad}
+  {#each $ads.data as ad}
     <div>{ad.title}</div>
     <!-- Przykład wyświetlania tytułu reklamy -->
   {/each}

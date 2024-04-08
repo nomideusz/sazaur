@@ -1,19 +1,14 @@
-import { fetchAdsForCategories } from './api/helpers.js';
+import { fetchAdsForCategories } from './helpers';
 
 export async function load({ fetch, parent }) {
   const { queryClient } = await parent();
+  const categories = ['sales', 'rental']; // Tutaj dodajemy wszystkie potrzebne kategorie
 
-  // Cachowanie danych dla 'sales'
-  await queryClient.prefetchQuery({
-    queryKey: ['ads', 'sales'],
-    queryFn: () => fetchAdsForCategories('sales', { fetch }),
-  });
-
-  // Cachowanie danych dla 'rental'
-  await queryClient.prefetchQuery({
-    queryKey: ['ads', 'rental'],
-    queryFn: () => fetchAdsForCategories('rental', { fetch }),
-  });
+  // Iteracja przez wszystkie kategorie i cachowanie danych dla każdej z nich
+  await Promise.all(categories.map(category => 
+    queryClient.prefetchQuery({
+      queryKey: ['ads', category],
+      queryFn: () => fetchAdsForCategories({ fetch }, category),
+    })
+  ));
 }
-
-
