@@ -2,7 +2,7 @@
   import { onMount } from "svelte"
   import { createQuery, useQueryClient } from "@tanstack/svelte-query"
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
-  import { fetchAdsForCategories } from "./helpers"
+  import { fetchAdsForCategoriess } from "./api/helpers"
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur.png?enhanced&w=373"
   import { Button } from "bits-ui"

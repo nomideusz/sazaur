@@ -11,28 +11,34 @@ const categoryToTableMap = {
   // Dodaj tutaj więcej kategorii w przyszłości
 };
 
+async function fetchDataForCategory(category) {
+  const tableName = categoryToTableMap[category];
+  if (!tableName) {
+    throw new Error('Invalid category provided');
+  }
+  const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9);
+  return response.data; // Zakładamy, że 'response.data' zawiera potrzebne dane
+}
+
 export async function GET({ url }) {
     const category = url.searchParams.get('category');
 
     try {
-        // Obsługa zapytania dla wszystkich kategorii
-        if (category === '/' || category === null) {
-            const responses = await Promise.all(Object.values(categoryToTableMap).map(tableName =>
-                supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9)
-            ));
-            
-            const combinedResponse = responses.flatMap(response => response.data);
-            return json(combinedResponse);
+        if (category) {
+            // Logika dla pojedynczej kategorii, gdy parametr jest obecny
+            const data = await fetchDataForCategory(category);
+            return json({ [category]: data });
         } else {
-            // Sprawdzenie, czy kategoria odpowiada znanej tabeli
-            const tableName = categoryToTableMap[category];
-            if (!tableName) {
-                return json({ error: 'Invalid category provided' }, { status: 400 });
-            }
-            
-            // Logika dla pojedynczej kategorii
-            const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9);
-            return json(response.data);
+            // Pobieranie danych dla obu kategorii jednocześnie, gdy parametr nie jest obecny
+            const [salesData, rentalData] = await Promise.all([
+                fetchDataForCategory('sales'),
+                fetchDataForCategory('rental'),
+            ]);
+
+            return json({
+              sales: salesData,
+              rental: rentalData,
+            });
         }
     } catch (error) {
         return json({ error: error.message }, { status: 500 });
