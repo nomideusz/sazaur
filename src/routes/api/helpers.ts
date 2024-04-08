@@ -1,8 +1,8 @@
 export async function fetchAdsForCategories(fetch, category) {
   try {
-    const response = await fetch(`./api/?category=${category}`);
+    const response = await fetch(`api?category=${category}`);
     if (!response.ok) {
-      throw new Error(`Network response was not ok for category: ${category}`);
+      throw new Error(`Network response was not ok.`);
     }
     return await response.json();
   } catch (error) {
