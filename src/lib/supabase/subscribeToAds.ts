@@ -8,14 +8,14 @@ export function subscribeToAds(queryClient) {
       "postgres_changes",
       { event: "*", schema: "public", table: "ads_sell" },
       (payload) => {
-            queryClient.invalidateQueries(['ads_combined']);
+            queryClient.invalidateQueries(['ads', 'sell']);
       }
   )
   .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "ads_rent" },
       (payload) => {
-            queryClient.invalidateQueries(['ads_combined']);
+            queryClient.invalidateQueries(['ads', 'rental']);
       }
   )
   .subscribe();

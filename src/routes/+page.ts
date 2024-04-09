@@ -1,4 +1,4 @@
-import { fetchAdsForCategories } from './api/helpers';
+import { api } from '$lib/api.js';
 
 export async function load({ fetch, parent }) {
   const { queryClient } = await parent();
@@ -8,13 +8,7 @@ export async function load({ fetch, parent }) {
   await Promise.all(categories.map(category => 
     queryClient.prefetchQuery({
       queryKey: ['ads', category],
-      queryFn: () => fetchAdsForCategories({ fetch }, category),
+      queryFn: () => api(fetch).getAdsByCategory(category),
     })
   ));
-
-  // Cachowanie danych dla 'sales'
-  await queryClient.prefetchQuery({
-    queryKey: ['ads', route.id],
-    queryFn: () => api(fetch).getAdsByCategory('rental')
-  });
 }

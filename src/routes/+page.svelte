@@ -1,17 +1,31 @@
 <script lang="ts">
+  import { api } from "$lib/api.js"
   import { onMount } from "svelte"
-  import { createQuery, useQueryClient } from "@tanstack/svelte-query"
+  import {
+    createQuery,
+    useQueryClient,
+    useIsMutating,
+  } from "@tanstack/svelte-query"
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
-  import { fetchAdsForCategoriess } from "./api/helpers"
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur.png?enhanced&w=373"
   import { Button } from "bits-ui"
-  let queryClient = useQueryClient()
-  // const categories = ["rental", "sales"]
-  // $: ads = createQuery({
-  //   queryKey: ["ads", ...categories], // Rozwinięcie tablicy kategorii do klucza zapytania
-  //   queryFn: () => fetchAdsForCategories("rental"),
-  // })
+  $: queryClient = useQueryClient()
+  const isMutating = useIsMutating()
+
+  $: adsSales = createQuery({
+    queryKey: ["ads", "sales"],
+    queryFn: () => api(fetch).getAdsByCategory("sales"),
+  })
+
+  $: adsRental = createQuery({
+    queryKey: ["ads", "rental"],
+    queryFn: () => api(fetch).getAdsByCategory("rental"),
+  })
+
+  $: countSales = $adsSales.data.sales.length
+  $: countRental = $adsRental.data.rental.length
+  $: countTotal = countSales + countRental
 
   onMount(() => {
     subscribeToAds(queryClient)
@@ -22,16 +36,8 @@
   <title>{WebsiteName}</title>
   <meta name="description" content="{WebsiteName} Home Page" />
 </svelte:head>
-<!-- <p>{$query.data.length}</p> -->
-<!-- <div>
-  {#if $query.data && Array.isArray($query.data.combined)}
-    {#each $query.data.combined as ad}
-      <p>{ad.price}</p>
-    {/each}
-  {:else}
-    <span class="loading loading-ring loading-lg"></span>
-  {/if}
-</div> -->
+
+<pre>$isMutating = {JSON.stringify(isMutating, null, 2)}</pre>
 
 <div class="hero min-h-[60vh]">
   <div class="hero-content text-center py-12">
@@ -57,23 +63,27 @@
     </div>
   </div>
 </div>
-
 <div class="stats pb-36 stats-vertical lg:stats-horizontal shadow">
   <div class="stat">
-    <div class="stat-title">Downloads</div>
-    <div class="stat-value"></div>
-    <div class="stat-desc">Jan 1st - Feb 1st</div>
+    <div class="stat-title">Sprzedaż</div>
+    <div class="stat-value">{countSales}</div>
+    <div class="stat-desc">
+      {#if $adsSales.isFetching}aktualizuję...{:else}dane aktualne{/if}
+    </div>
   </div>
-
   <div class="stat">
-    <div class="stat-title">New Users</div>
-    <div class="stat-value"></div>
-    <div class="stat-desc">↗︎ 400 (22%)</div>
+    <div class="stat-title">Wynajem</div>
+    <div class="stat-value">{countRental}</div>
+    <div class="stat-desc">
+      {#if $adsRental.isFetching}aktualizuję...{:else}dane aktualne{/if}
+    </div>
   </div>
-
   <div class="stat">
-    <div class="stat-title">New Registers</div>
-    <div class="stat-value"></div>
-    <div class="stat-desc">↘︎ 90 (14%)</div>
+    <div class="stat-title">Całkowita liczba</div>
+    <div class="stat-value">{countTotal}</div>
+    <div class="stat-desc">
+      {#if $adsSales.isFetching || $adsRental.isFetching}aktualizuję...{:else}dane
+        aktualne{/if}
+    </div>
   </div>
 </div>

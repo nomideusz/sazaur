@@ -8,7 +8,7 @@ export const api = (customFetch = fetch) => ({
     },
     getAdsByCategory: async (cat: string) => {
       const response = await customFetch(
-        `api?category=${cat}`,
+        `../api?category=${cat}`,
       )
       const data = (await response.json())
       return data
