@@ -5,7 +5,13 @@
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
   import { page } from "$app/stores"
   import { useQueryClient, createQuery } from "@tanstack/svelte-query"
-  export let data
+
+  let translation
+
+  async function translate() {
+    const response = await fetch("/translate")
+    translation = await response.json()
+  }
 
   const queryClient = useQueryClient()
 
@@ -24,7 +30,12 @@
   <title>{category}</title>
   <meta name="description" content="Rental ads for {WebsiteName}" />
 </svelte:head>
-{data.translation}
+<button class="btn" on:click={translate}>Translate</button>
+
+{#if translation !== undefined}
+  <p>Oto tłumaczenie: {translation}</p>
+{/if}
+
 <!-- <pre>$ads = {JSON.stringify($ads, null, 2)}</pre> -->
 {#if $ads.status === "pending"}
   <span>Loading...</span>

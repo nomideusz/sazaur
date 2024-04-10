@@ -6,8 +6,4 @@ export async function load({ fetch, parent, params }) {
       queryKey: ['ads', params.cat],
       queryFn: () => api(fetch).getAdsByCategory(params.cat),
     })
-
-    const response =  await fetch('/translate')
-    const translation = response.json()
-    return { translation }
 }
