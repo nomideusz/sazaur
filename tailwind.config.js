@@ -3,6 +3,9 @@ export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {},
+    fontFamily: {
+      display: ['Deadknight', 'sans-serif']
+    },
   },
   plugins: [
     require('@tailwindcss/typography'),
@@ -47,7 +50,7 @@ export default {
         saasstartertheme: {
           "primary": "#180042",
           "primary-content": "#fefbf6",
-          "secondary": "#c7b9f8",
+          "secondary": "#cccbb8",
           "neutral": "#180042",
           "neutral-content": "#fefbf6",
           "accent": "#db2777",

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Deadknight';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/Deadknight-MAAOp.ttf') format('truetype');
+}
+
 a {
   @apply cursor-pointer;
 }
