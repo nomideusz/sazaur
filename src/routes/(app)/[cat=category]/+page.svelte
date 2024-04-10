@@ -10,7 +10,7 @@
 
   async function translate() {
     const response = await fetch("/translate")
-    translation = await response.json()
+    translation = await response
   }
 
   const queryClient = useQueryClient()
@@ -32,7 +32,7 @@
 </svelte:head>
 <button class="btn" on:click={translate}>Translate</button>
 
-{#if translation !== undefined}
+{#if translation === undefined}
   <p>Oto tłumaczenie: {translation}</p>
 {/if}
 
