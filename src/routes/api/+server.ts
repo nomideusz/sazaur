@@ -16,7 +16,7 @@ async function fetchDataForCategory(category) {
   if (!tableName) {
     throw new Error('Invalid category provided');
   }
-  const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9999);
+  const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 99);
   return response.data; // Zakładamy, że 'response.data' zawiera potrzebne dane
 }
 

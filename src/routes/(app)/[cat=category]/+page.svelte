@@ -5,6 +5,7 @@
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
   import { page } from "$app/stores"
   import { useQueryClient, createQuery } from "@tanstack/svelte-query"
+  export let data
 
   const queryClient = useQueryClient()
 
@@ -23,7 +24,7 @@
   <title>{category}</title>
   <meta name="description" content="Rental ads for {WebsiteName}" />
 </svelte:head>
-
+{data.translation}
 <!-- <pre>$ads = {JSON.stringify($ads, null, 2)}</pre> -->
 {#if $ads.status === "pending"}
   <span>Loading...</span>
