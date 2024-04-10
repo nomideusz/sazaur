@@ -8,14 +8,15 @@
 
   let translation
 
-  async function translate() {
-    const response = await fetch("/translate")
-    translation = await response
-  }
-
   const queryClient = useQueryClient()
 
   $: category = $page.params.cat
+
+  async function translate() {
+    const response = await fetch(`/${category}/translate`)
+    translation = await response
+  }
+
   $: ads = createQuery({
     queryKey: ["ads", category],
     queryFn: () => api(fetch).getAdsByCategory(category),
