@@ -40,7 +40,7 @@
       <enhanced:img class="" src={logo} alt="Zaur" sizes="min(400px)" />
       <div class="text-4xl md:text-7xl px-2" style="line-height: 1.3;">
         <span
-          class="font-display underline decoration-secondary decoration-4 md:decoration-[6px]"
+          class="text-primary font-display underline decoration-secondary decoration-4 md:decoration-[6px]"
           >Zaur</span
         >
       </div>
