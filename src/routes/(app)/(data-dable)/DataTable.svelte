@@ -6,10 +6,21 @@
     createSvelteTable,
     flexRender,
     getCoreRowModel,
+    getSortedRowModel,
   } from "@tanstack/svelte-table"
-  import type { ColumnDef, TableOptions } from "@tanstack/svelte-table"
+  import type {
+    ColumnDef,
+    OnChangeFn,
+    SortingState,
+    TableOptions,
+  } from "@tanstack/svelte-table"
   import type { Ad } from "$lib/types"
   export let category: string
+
+  import CompactTable from "./CompactTable.svelte"
+  import DetailedTable from "./DetailedTable.svelte"
+
+  let useDetailed = writable(false)
 
   $: ads = createQuery<Ad[]>({
     queryKey: ["ads", category],
@@ -18,12 +29,13 @@
 
   const defaultColumns: ColumnDef<Ad>[] = [
     {
-      accessorKey: "Id",
+      accessorKey: "id",
       cell: (info) => info.getValue(),
       footer: (info) => info.column.id,
     },
     {
       accessorFn: (row) => row.title,
+      sortingFn: "text",
       id: "title",
       cell: (info) => info.getValue(),
       header: () => "Tytuł",
@@ -35,26 +47,107 @@
       footer: (info) => info.column.id,
     },
     {
+      accessorKey: "city",
+      header: () => "Miasto",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "district",
+      header: "Dzielnica",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "date",
+      header: () => "Data dotania",
+      footer: (info) => info.column.id,
+    },
+    {
       accessorKey: "sqm",
       header: () => "Powierzchnia",
       footer: (info) => info.column.id,
     },
     {
+      accessorKey: "price_per_sqm",
+      header: () => "Cena za m2",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "ad_link",
+      header: "Link",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "created_at",
+      header: () => "Zzaurowane",
+      footer: (info) => info.column.id,
+    },
+    {
       accessorKey: "is_private",
-      header: "Status",
+      header: () => "Agencja?",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "image_url",
+      header: () => "URL obrazka",
       footer: (info) => info.column.id,
     },
     {
       accessorKey: "property_type",
-      header: "Rodzaj nieruchomości",
+      header: "Rodzaj",
+      footer: (info) => info.column.id,
+    },
+    {
+      accessorKey: "region_name",
+      header: () => "Region",
       footer: (info) => info.column.id,
     },
   ]
 
+  let sorting: SortingState = []
+
+  const setSorting: OnChangeFn<SortingState> = (updater) => {
+    if (updater instanceof Function) {
+      sorting = updater(sorting)
+    } else {
+      sorting = updater
+    }
+    options.update((old) => ({
+      ...old,
+      state: {
+        ...old.state,
+        sorting,
+      },
+    }))
+  }
+
   $: options = writable<TableOptions<Ad>>({
     data: $ads.data,
     columns: defaultColumns,
+    initialState: {
+      columnOrder: [
+        "title",
+        "district",
+        "region_name",
+        "price",
+        "sqm",
+        "price_per_sqm",
+      ], //customize the initial column order
+      columnVisibility: {
+        id: false,
+        city: false,
+        ad_link: false,
+        image_url: false,
+      },
+      expanded: true, //expand all rows by default
+    },
+    state: {
+      sorting,
+    },
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    isMultiSortEvent: (e) => e.ctrlKey || e.shiftKey,
+    debugTable: true,
   })
 
   const rerender = () => {
@@ -69,6 +162,30 @@
 
 <!-- <pre>$data = {JSON.stringify($ads.data, null, 2)}</pre> -->
 
+<button
+  class="btn btn-primary mb-4"
+  on:click={() => ($useDetailed = !$useDetailed)}
+>
+  {#if $useDetailed}
+    Switch to Compact View
+  {:else}
+    Switch to Detailed View
+  {/if}
+</button>
+{#if $ads.status === "pending"}
+  <span>Loading...</span>
+{:else if $ads.status === "error"}
+  <span>Error: {$ads.error.message}</span>
+{:else if $ads.isSuccess && $ads.data}
+  <div class="overflow-x-auto">
+    {#if $useDetailed}
+      <DetailedTable rows={$table.getRowModel().rows} />
+    {:else}
+      <CompactTable rows={$table.getRowModel().rows} />
+    {/if}
+  </div>
+{/if}
+
 {#if $ads.status === "pending"}
   <span>Loading...</span>
 {:else if $ads.status === "error"}
@@ -82,12 +199,26 @@
             {#each headerGroup.headers as header}
               <th>
                 {#if !header.isPlaceholder}
-                  <svelte:component
-                    this={flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  />
+                  <button
+                    class:cursor-pointer={header.column.getCanSort()}
+                    class:select-none={header.column.getCanSort()}
+                    on:click={header.column.getToggleSortingHandler()}
+                  >
+                    <svelte:component
+                      this={flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    />
+                    {#if header.column.getIsSorted().toString() === "asc"}
+                      🔼
+                    {:else if header.column.getIsSorted().toString() === "desc"}
+                      🔽
+                    {/if}
+                  </button>
+                  {#if header.column.getIsSorted() && $table.getState().sorting.length > 1}
+                    {header.column.getSortIndex() + 1}
+                  {/if}
                 {/if}
               </th>
             {/each}
@@ -130,59 +261,8 @@
       </tfoot>
     </table>
     <div class="h-4" />
+    <div>{$table.getRowModel().rows.length} Rows</div>
     <button on:click={() => rerender()} class="border p-2"> Rerender </button>
+    <pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
   </div>
 {/if}
-
-<!-- <div class="overflow-x-auto">
-  <table class="table table-xs">
-    <thead>
-      <tr>
-        <th></th>
-        <th>tytuł</th>
-        <th>dzielnica</th>
-        <th>cena</th>
-        <th>miasto</th>
-        <th>data dodania ogłoszenia</th>
-        <th>prywatne/agencja</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if $ads.status === "pending"}
-        <span>Loading...</span>
-      {:else if $ads.status === "error"}
-        <span>Error: {$ads.error.message}</span>
-      {:else if $ads.isSuccess && $ads.data[category]}
-        {#each $ads.data[category] as ad}
-          <tr>
-            <th>{ad.id}</th>
-            <td>{ad.title}</td>
-            <td>{ad.district}</td>
-            <td>{ad.price}</td>
-            <td>{ad.city}</td>
-            <td>{ad.date}</td>
-            <td>{ad.is_private}</td>
-          </tr>
-        {/each}
-        {#if $ads.isFetching}
-          <div style="color:darkgreen; font-weight:700">
-            Background Updating...
-          </div>
-        {/if}
-      {:else}
-        <p>No ads to display.</p>
-      {/if}
-    </tbody>
-    <tfoot>
-      <tr>
-        <th></th>
-        <th>tytuł</th>
-        <th>dzielnica</th>
-        <th>cena</th>
-        <th>miasto</th>
-        <th>data dodania ogłoszenia</th>
-        <th>prywatne/agencja</th>
-      </tr>
-    </tfoot>
-  </table>
-</div> -->
