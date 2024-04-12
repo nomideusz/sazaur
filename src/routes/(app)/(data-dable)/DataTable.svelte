@@ -68,61 +68,71 @@
 </script>
 
 <!-- <pre>$data = {JSON.stringify($ads.data, null, 2)}</pre> -->
-<div class="overflow-x-auto">
-  <table class="table table-xs">
-    <thead>
-      {#each $table.getHeaderGroups() as headerGroup}
-        <tr>
-          {#each headerGroup.headers as header}
-            <th>
-              {#if !header.isPlaceholder}
+
+{#if $ads.status === "pending"}
+  <span>Loading...</span>
+{:else if $ads.status === "error"}
+  <span>Error: {$ads.error.message}</span>
+{:else if $ads.isSuccess && $ads.data}
+  <div class="overflow-x-auto">
+    <table class="table table-xs">
+      <thead>
+        {#each $table.getHeaderGroups() as headerGroup}
+          <tr>
+            {#each headerGroup.headers as header}
+              <th>
+                {#if !header.isPlaceholder}
+                  <svelte:component
+                    this={flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                  />
+                {/if}
+              </th>
+            {/each}
+          </tr>
+        {/each}
+      </thead>
+      <tbody>
+        {#each $table.getRowModel().rows as row}
+          <tr>
+            {#each row.getVisibleCells() as cell}
+              <td>
                 <svelte:component
                   this={flexRender(
-                    header.column.columnDef.header,
-                    header.getContext(),
+                    cell.column.columnDef.cell,
+                    cell.getContext(),
                   )}
                 />
-              {/if}
-            </th>
-          {/each}
-        </tr>
-      {/each}
-    </thead>
-    <tbody>
-      {#each $table.getRowModel().rows as row}
-        <tr>
-          {#each row.getVisibleCells() as cell}
-            <td>
-              <svelte:component
-                this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-              />
-            </td>
-          {/each}
-        </tr>
-      {/each}
-    </tbody>
-    <tfoot>
-      {#each $table.getFooterGroups() as footerGroup}
-        <tr>
-          {#each footerGroup.headers as header}
-            <th>
-              {#if !header.isPlaceholder}
-                <svelte:component
-                  this={flexRender(
-                    header.column.columnDef.footer,
-                    header.getContext(),
-                  )}
-                />
-              {/if}
-            </th>
-          {/each}
-        </tr>
-      {/each}
-    </tfoot>
-  </table>
-  <div class="h-4" />
-  <button on:click={() => rerender()} class="border p-2"> Rerender </button>
-</div>
+              </td>
+            {/each}
+          </tr>
+        {/each}
+      </tbody>
+      <tfoot>
+        {#each $table.getFooterGroups() as footerGroup}
+          <tr>
+            {#each footerGroup.headers as header}
+              <th>
+                {#if !header.isPlaceholder}
+                  <svelte:component
+                    this={flexRender(
+                      header.column.columnDef.footer,
+                      header.getContext(),
+                    )}
+                  />
+                {/if}
+              </th>
+            {/each}
+          </tr>
+        {/each}
+      </tfoot>
+    </table>
+    <div class="h-4" />
+    <button on:click={() => rerender()} class="border p-2"> Rerender </button>
+  </div>
+{/if}
 
 <!-- <div class="overflow-x-auto">
   <table class="table table-xs">
