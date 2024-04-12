@@ -44,8 +44,12 @@
 		"@supabase/supabase-js": "^2.33.0",
 		"@tanstack/svelte-query": "^5.28.8",
 		"@tanstack/svelte-query-devtools": "^5.28.9",
+		"@tanstack/svelte-table": "^8.15.3",
 		"bits-ui": "^0.21.1",
+		"clsx": "^2.1.0",
 		"stripe": "^13.3.0",
+		"svelte-motion": "^0.12.2",
+		"tailwind-merge": "^2.2.2",
 		"theme-change": "^2.5.0"
 	}
 }

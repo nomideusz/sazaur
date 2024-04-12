@@ -1,9 +1,15 @@
 import { api } from '$lib/api.js';
+import type { PageLoad } from './$types'
 
-export async function load({ fetch, parent, params }) {
-  const { queryClient } = await parent();
-    queryClient.prefetchQuery({
-      queryKey: ['ads', params.cat],
-      queryFn: () => api(fetch).getAdsByCategory(params.cat),
-    })
+export const load: PageLoad = async ({ parent, fetch, params }) => {
+  const { queryClient } = await parent()
+
+  const category = params.cat
+
+  await queryClient.prefetchQuery({
+    queryKey: ['ads', category],
+    queryFn: () => api(fetch).getAdsByCategory(category),
+  })
+
+  return { category }
 }

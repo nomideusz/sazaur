@@ -74,7 +74,7 @@
 </div>
 
 <QueryClientProvider client={data.queryClient}>
-  <div class="mx-auto">
+  <div class="container mx-auto">
     <slot />
     <SvelteQueryDevtools initialIsOpen>
       {showDevtools}

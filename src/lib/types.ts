@@ -1,4 +1,4 @@
-export type Ad = {
+  export type Ad = {
     id: number
     title: string
     price: number
@@ -13,5 +13,4 @@ export type Ad = {
     image_url: string
     property_type: string
     region_name: string
-    section: string
   }

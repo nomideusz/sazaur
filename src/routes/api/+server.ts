@@ -11,34 +11,17 @@ const categoryToTableMap = {
   // Dodaj tutaj więcej kategorii w przyszłości
 };
 
-async function fetchDataForCategory(category) {
-  const tableName = categoryToTableMap[category];
-  if (!tableName) {
-    throw new Error('Invalid category provided');
-  }
-  const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 99);
-  return response.data; // Zakładamy, że 'response.data' zawiera potrzebne dane
-}
-
 export async function GET({ url }) {
-    const category = url.searchParams.get('category');
+    const category: string | null = url.searchParams.get('category');
+    const tableName = categoryToTableMap[category];
 
     try {
         if (category) {
             // Logika dla pojedynczej kategorii, gdy parametr jest obecny
-            const data = await fetchDataForCategory(category);
-            return json({ [category]: data });
+            const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 99);
+            return json(response.data);
         } else {
-            // Pobieranie danych dla obu kategorii jednocześnie, gdy parametr nie jest obecny
-            const [salesData, rentalData] = await Promise.all([
-                fetchDataForCategory('sales'),
-                fetchDataForCategory('rental'),
-            ]);
-
-            return json({
-              sales: salesData,
-              rental: rentalData,
-            });
+          throw new Error('Invalid category provided');
         }
     } catch (error) {
         return json({ error: error.message }, { status: 500 });

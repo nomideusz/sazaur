@@ -5,7 +5,7 @@
   import { subscribeToAds } from "$lib/supabase/subscribeToAds"
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur07.png?enhanced&w=400"
-  import { Button } from "bits-ui"
+  import { TextGenerateEffect } from "$lib/components/ui/TextGenerateEffect"
   $: queryClient = useQueryClient()
 
   $: adsSales = createQuery({
@@ -18,9 +18,11 @@
     queryFn: () => api(fetch).getAdsByCategory("rental"),
   })
 
-  $: countSales = $adsSales.data.sales.length
-  $: countRental = $adsRental.data.rental.length
+  $: countSales = $adsSales.data.length
+  $: countRental = $adsRental.data.length
   $: countTotal = countSales + countRental
+
+  const words = `Potwornie inteligentny. Nie ma żadnych problemów. Inteligentny. Potwornie inteligentny. Nie ma żadnych problemów. Inteligentny. Potwornie inteligentny. Nie ma żadnych problemów. Inteligentny.`
 
   onMount(() => {
     subscribeToAds(queryClient)
@@ -34,8 +36,8 @@
 
 <!-- <pre>$isMutating = {JSON.stringify(isMutating, null, 2)}</pre> -->
 
-<div class="hero min-h-[60vh]">
-  <div class="hero-content text-center py-12">
+<div class="hero min-h-[50vh]">
+  <div class="hero-content text-center">
     <div class="max-w-xl">
       <enhanced:img class="" src={logo} alt="Zaur" sizes="min(400px)" />
       <div class="text-4xl md:text-7xl px-2" style="line-height: 1.3;">
@@ -47,27 +49,33 @@
     </div>
   </div>
 </div>
-<div class="stats pb-36 stats-vertical lg:stats-horizontal shadow">
-  <div class="stat">
-    <div class="stat-title">Sprzedaż</div>
-    <div class="stat-value">{countSales}</div>
-    <div class="stat-desc">
-      {#if $adsSales.isFetching}aktualizuję...{:else}dane aktualne{/if}
+<TextGenerateEffect
+  {words}
+  className="max-w-[1000px] mx-auto mb-24 text-center"
+/>
+<div class="flex justify-center">
+  <div class="stats pb-36 stats-vertical lg:stats-horizontal shadow">
+    <div class="stat">
+      <div class="stat-title">Sprzedaż</div>
+      <div class="stat-value">{countSales}</div>
+      <div class="stat-desc">
+        {#if $adsSales.isFetching}aktualizuję...{:else}dane aktualne{/if}
+      </div>
     </div>
-  </div>
-  <div class="stat">
-    <div class="stat-title">Wynajem</div>
-    <div class="stat-value">{countRental}</div>
-    <div class="stat-desc">
-      {#if $adsRental.isFetching}aktualizuję...{:else}dane aktualne{/if}
+    <div class="stat">
+      <div class="stat-title">Wynajem</div>
+      <div class="stat-value">{countRental}</div>
+      <div class="stat-desc">
+        {#if $adsRental.isFetching}aktualizuję...{:else}dane aktualne{/if}
+      </div>
     </div>
-  </div>
-  <div class="stat">
-    <div class="stat-title">Całkowita liczba</div>
-    <div class="stat-value">{countTotal}</div>
-    <div class="stat-desc">
-      {#if $adsSales.isFetching || $adsRental.isFetching}aktualizuję...{:else}dane
-        aktualne{/if}
+    <div class="stat">
+      <div class="stat-title">Całkowita liczba</div>
+      <div class="stat-value">{countTotal}</div>
+      <div class="stat-desc">
+        {#if $adsSales.isFetching || $adsRental.isFetching}aktualizuję...{:else}dane
+          aktualne{/if}
+      </div>
     </div>
   </div>
 </div>
