@@ -18,7 +18,7 @@ export async function GET({ url }) {
     try {
         if (category) {
             // Logika dla pojedynczej kategorii, gdy parametr jest obecny
-            const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 499);
+            const response = await supabase.from(tableName).select('*').order('created_at', { ascending: false }).range(0, 9999);
             return json(response.data);
         } else {
           throw new Error('Invalid category provided');

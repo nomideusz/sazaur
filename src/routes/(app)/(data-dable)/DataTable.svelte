@@ -2,25 +2,27 @@
   import { api } from "$lib/api.js"
   import { createQuery } from "@tanstack/svelte-query"
   import { writable } from "svelte/store"
+  import { Button, Tabs } from "bits-ui"
   import {
     createSvelteTable,
     flexRender,
     getCoreRowModel,
     getSortedRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
   } from "@tanstack/svelte-table"
   import type {
     ColumnDef,
     OnChangeFn,
     SortingState,
     TableOptions,
+    VisibilityState,
+    PaginationState,
   } from "@tanstack/svelte-table"
   import type { Ad } from "$lib/types"
   export let category: string
 
-  import CompactTable from "./CompactTable.svelte"
-  import DetailedTable from "./DetailedTable.svelte"
-
-  let useDetailed = writable(false)
+  let useXS = writable(false)
 
   $: ads = createQuery<Ad[]>({
     queryKey: ["ads", category],
@@ -31,79 +33,101 @@
     {
       accessorKey: "id",
       cell: (info) => info.getValue(),
+      header: "id",
       footer: (info) => info.column.id,
+      enableColumnFilter: false,
+      enableGlobalFilter: false,
     },
     {
       accessorFn: (row) => row.title,
+      filterFn: "includesString",
       sortingFn: "text",
       id: "title",
       cell: (info) => info.getValue(),
-      header: () => "Tytuł",
+      header: "tytuł",
       footer: (info) => info.column.id,
     },
     {
       accessorKey: "price",
-      header: () => "Cena",
+      filterFn: "inNumberRange",
+      header: "cena",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "city",
-      header: () => "Miasto",
+      header: "miasto",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "district",
-      header: "Dzielnica",
+      header: "dzielnica",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "date",
-      header: () => "Data dotania",
+      header: "data dotania",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "sqm",
-      header: () => "Powierzchnia",
+      header: "powierzchnia",
+      filterFn: "inNumberRange",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "price_per_sqm",
-      header: () => "Cena za m2",
+      header: "cena za m2",
+      filterFn: "inNumberRange",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "ad_link",
-      header: "Link",
+      header: "link",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "created_at",
-      header: () => "Zzaurowane",
+      header: "zzaurowane",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "is_private",
-      header: () => "Agencja?",
+      header: "agencja?",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "image_url",
-      header: () => "URL obrazka",
+      header: "URL obrazka",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "property_type",
-      header: "Rodzaj",
+      header: "rodzaj",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
     {
       accessorKey: "region_name",
-      header: () => "Region",
+      header: "region",
       footer: (info) => info.column.id,
+      enableGlobalFilter: false,
     },
   ]
 
   let sorting: SortingState = []
+  let columnVisibility: VisibilityState = {}
+  let globalFilter = ""
+  let pagination = { pageIndex: 0, pageSize: 15 } //default pagination
 
   const setSorting: OnChangeFn<SortingState> = (updater) => {
     if (updater instanceof Function) {
@@ -116,6 +140,36 @@
       state: {
         ...old.state,
         sorting,
+      },
+    }))
+  }
+
+  const setColumnVisibility: OnChangeFn<VisibilityState> = (updater) => {
+    if (updater instanceof Function) {
+      columnVisibility = updater(columnVisibility)
+    } else {
+      columnVisibility = updater
+    }
+    options.update((old) => ({
+      ...old,
+      state: {
+        ...old.state,
+        columnVisibility,
+      },
+    }))
+  }
+
+  const setPagination = (updater) => {
+    if (updater instanceof Function) {
+      pagination = updater(pagination)
+    } else {
+      pagination = updater
+    }
+    options.update((old) => ({
+      ...old,
+      state: {
+        ...old.state,
+        pagination,
       },
     }))
   }
@@ -142,10 +196,16 @@
     },
     state: {
       sorting,
+      columnVisibility,
+      pagination,
     },
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     isMultiSortEvent: (e) => e.ctrlKey || e.shiftKey,
     debugTable: true,
   })
@@ -158,41 +218,126 @@
   }
 
   $: table = createSvelteTable(options)
+  const handleKeyUp = (e: any) => {
+    $table.setGlobalFilter(String(e?.target?.value))
+  }
 </script>
 
 <!-- <pre>$data = {JSON.stringify($ads.data, null, 2)}</pre> -->
+<pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
+<pre>{JSON.stringify($table.getState().globalFilter, null, 2)}</pre>
+<pre>{JSON.stringify($table.getState().pagination, null, 2)}</pre>
 
-<button
-  class="btn btn-primary mb-4"
-  on:click={() => ($useDetailed = !$useDetailed)}
->
-  {#if $useDetailed}
-    Switch to Compact View
-  {:else}
-    Switch to Detailed View
-  {/if}
-</button>
-{#if $ads.status === "pending"}
-  <span>Loading...</span>
-{:else if $ads.status === "error"}
-  <span>Error: {$ads.error.message}</span>
-{:else if $ads.isSuccess && $ads.data}
-  <div class="overflow-x-auto">
-    {#if $useDetailed}
-      <DetailedTable rows={$table.getRowModel().rows} />
+<div class="flex gap-2">
+  <label class="input input-bordered flex items-center gap-2">
+    <input
+      type="text"
+      class="grow"
+      placeholder="Szukaj w tytułach ofert"
+      bind:value={globalFilter}
+      on:keyup={handleKeyUp}
+    />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      class="w-4 h-4 opacity-70"
+      ><path
+        fill-rule="evenodd"
+        d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+        clip-rule="evenodd"
+      /></svg
+    >
+  </label>
+
+  <button class="btn btn-primary mb-4" on:click={() => ($useXS = !$useXS)}>
+    {#if $useXS}
+      Switch to Detailed View
     {:else}
-      <CompactTable rows={$table.getRowModel().rows} />
+      Switch to Compact View
     {/if}
+  </button>
+
+  <div class="form-control">
+    <label class="label cursor-pointer place-content-start gap-2">
+      <input
+        checked={$table.getIsAllColumnsVisible()}
+        on:change={(e) => {
+          console.info($table.getToggleAllColumnsVisibilityHandler()(e))
+        }}
+        type="checkbox"
+        class="checkbox checkbox-primary"
+      />
+      <span class="label-text">Toggle All</span>
+    </label>
+    {#each $table.getAllLeafColumns() as column}
+      <label class="label cursor-pointer place-content-start gap-2">
+        <input
+          checked={column.getIsVisible()}
+          on:change={column.getToggleVisibilityHandler()}
+          type="checkbox"
+          class="checkbox checkbox-primary"
+        />
+        <span class="label-text">{column.columnDef.header}</span>
+      </label>
+    {/each}
   </div>
-{/if}
+</div>
+
+<div class="join">
+  <button class="join-item btn">1</button>
+  <button class="join-item btn">2</button>
+  <button class="join-item btn btn-disabled">...</button>
+  <button class="join-item btn">99</button>
+  <button class="join-item btn">100</button>
+</div>
+<div class="flex items-center justify-end space-x-4 py-4">
+  <button
+    class="btn"
+    on:click={() => $table.firstPage()}
+    disabled={!$table.getCanPreviousPage()}>First</button
+  >
+  <button
+    class="btn"
+    on:click={() => $table.previousPage()}
+    disabled={!$table.getCanPreviousPage()}>Previous</button
+  >
+  <button
+    class="btn"
+    disabled={!$table.getCanNextPage()}
+    on:click={() => $table.nextPage()}>Next</button
+  >
+  <button
+    class="btn"
+    disabled={!$table.getCanNextPage()}
+    on:click={() => $table.lastPage()}>Last</button
+  >
+</div>
+
+<Tabs.Root class="" value="mieszkania">
+  <Tabs.List class="tabs tabs-boxed">
+    <Tabs.Trigger class="tab data-[state=active]:tab-active" value="mieszkania"
+      >mieszkania</Tabs.Trigger
+    >
+    <Tabs.Trigger class="tab data-[state=active]:tab-active" value="domy"
+      >domy</Tabs.Trigger
+    >
+    <Tabs.Trigger class="tab data-[state=active]:tab-active" value="garaże"
+      >garaże</Tabs.Trigger
+    >
+  </Tabs.List>
+  <Tabs.Content value="mieszkania" class="pt-3">Mieszkania</Tabs.Content>
+  <Tabs.Content value="domy" class="pt-3">Domy</Tabs.Content>
+  <Tabs.Content value="garaże" class="pt-3">Garaże</Tabs.Content>
+</Tabs.Root>
 
 {#if $ads.status === "pending"}
-  <span>Loading...</span>
+  <span class="loading loading-ring loading-lg"></span>
 {:else if $ads.status === "error"}
   <span>Error: {$ads.error.message}</span>
 {:else if $ads.isSuccess && $ads.data}
   <div class="overflow-x-auto">
-    <table class="table table-xs">
+    <table class="table {$useXS ? 'table-xs' : ''}">
       <thead>
         {#each $table.getHeaderGroups() as headerGroup}
           <tr>
@@ -220,6 +365,11 @@
                     {header.column.getSortIndex() + 1}
                   {/if}
                 {/if}
+                <!-- {#if header.column.getCanFilter()}
+                  <div>
+                    {header.column.getFilterValue()}
+                  </div>
+                {/if} -->
               </th>
             {/each}
           </tr>
@@ -263,6 +413,5 @@
     <div class="h-4" />
     <div>{$table.getRowModel().rows.length} Rows</div>
     <button on:click={() => rerender()} class="border p-2"> Rerender </button>
-    <pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
   </div>
 {/if}

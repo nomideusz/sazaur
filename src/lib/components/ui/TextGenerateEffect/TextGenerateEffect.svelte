@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Motion } from "svelte-motion"
   import { cn } from "$lib/utils/cn"
+  import { balancer } from "svelte-action-balancer"
 
   export let words: string
   export let className: string | undefined = undefined
@@ -18,33 +19,32 @@
 </script>
 
 <div class={cn("font-bold", className)}>
-  <div class="">
-    <div
-      class=" text-2xl leading-snug tracking-wide text-black dark:text-white"
+  <div
+    use:balancer={{ enabled: true, ratio: 0.5 }}
+    class=" text-2xl leading-snug tracking-wide text-black dark:text-white text-center mx-auto"
+  >
+    <Motion
+      let:motion
+      custom={0}
+      {variants}
+      initial="hidden"
+      animate={"visible"}
     >
-      <Motion
-        let:motion
-        custom={0}
-        {variants}
-        initial="hidden"
-        animate={"visible"}
-      >
-        <div use:motion>
-          {#each words.split(" ") as word, idx (`${word}${idx}`)}
-            <Motion
-              let:motion
-              {variants}
-              custom={idx + 1}
-              initial="hidden"
-              animate={"visible"}
-            >
-              <span use:motion class="text-secondary dark:text-white">
-                {word}{" "}
-              </span>
-            </Motion>
-          {/each}
-        </div>
-      </Motion>
-    </div>
+      <div use:motion>
+        {#each words.split(" ") as word, idx (`${word}${idx}`)}
+          <Motion
+            let:motion
+            {variants}
+            custom={idx + 1}
+            initial="hidden"
+            animate={"visible"}
+          >
+            <span use:motion class="text-secondary dark:text-white">
+              {word}{" "}
+            </span>
+          </Motion>
+        {/each}
+      </div>
+    </Motion>
   </div>
 </div>
