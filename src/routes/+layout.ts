@@ -6,7 +6,7 @@ export async function load() {
     defaultOptions: {
       queries: {
         enabled: browser,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 1 * 60 * 1000,
       },
     },
   })

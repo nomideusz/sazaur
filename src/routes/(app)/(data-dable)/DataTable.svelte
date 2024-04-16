@@ -23,8 +23,7 @@
   export let category: string
 
   let useXS = writable(false)
-
-  $: ads = createQuery<Ad[]>({
+  $: ads = createQuery<Ad[], Error>({
     queryKey: ["ads", category],
     queryFn: () => api().getAdsByCategory(category),
   })
@@ -127,7 +126,7 @@
   let sorting: SortingState = []
   let columnVisibility: VisibilityState = {}
   let globalFilter = ""
-  let pagination = { pageIndex: 0, pageSize: 15 } //default pagination
+  let pagination = { pageIndex: 0, pageSize: 50 } //default pagination
 
   const setSorting: OnChangeFn<SortingState> = (updater) => {
     if (updater instanceof Function) {
@@ -223,7 +222,7 @@
   }
 </script>
 
-<!-- <pre>$data = {JSON.stringify($ads.data, null, 2)}</pre> -->
+<pre>$ads.status = {JSON.stringify($ads.status, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().globalFilter, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().pagination, null, 2)}</pre>
@@ -284,36 +283,6 @@
   </div>
 </div>
 
-<div class="join">
-  <button class="join-item btn">1</button>
-  <button class="join-item btn">2</button>
-  <button class="join-item btn btn-disabled">...</button>
-  <button class="join-item btn">99</button>
-  <button class="join-item btn">100</button>
-</div>
-<div class="flex items-center justify-end space-x-4 py-4">
-  <button
-    class="btn"
-    on:click={() => $table.firstPage()}
-    disabled={!$table.getCanPreviousPage()}>First</button
-  >
-  <button
-    class="btn"
-    on:click={() => $table.previousPage()}
-    disabled={!$table.getCanPreviousPage()}>Previous</button
-  >
-  <button
-    class="btn"
-    disabled={!$table.getCanNextPage()}
-    on:click={() => $table.nextPage()}>Next</button
-  >
-  <button
-    class="btn"
-    disabled={!$table.getCanNextPage()}
-    on:click={() => $table.lastPage()}>Last</button
-  >
-</div>
-
 <Tabs.Root class="" value="mieszkania">
   <Tabs.List class="tabs tabs-boxed">
     <Tabs.Trigger class="tab data-[state=active]:tab-active" value="mieszkania"
@@ -331,11 +300,14 @@
   <Tabs.Content value="garaże" class="pt-3">Garaże</Tabs.Content>
 </Tabs.Root>
 
-{#if $ads.status === "pending"}
+{#if $ads.isLoading}
   <span class="loading loading-ring loading-lg"></span>
-{:else if $ads.status === "error"}
+{/if}
+{#if $ads.error}
   <span>Error: {$ads.error.message}</span>
-{:else if $ads.isSuccess && $ads.data}
+{/if}
+{#if $ads.isSuccess}
+  <div>{$ads.isFetching ? "Background Updating..." : " "}</div>
   <div class="overflow-x-auto">
     <table class="table {$useXS ? 'table-xs' : ''}">
       <thead>
@@ -410,8 +382,32 @@
         {/each}
       </tfoot>
     </table>
-    <div class="h-4" />
+  </div>
+  <div class="pt-4 flex gap-2 justify-end">
     <div>{$table.getRowModel().rows.length} Rows</div>
-    <button on:click={() => rerender()} class="border p-2"> Rerender </button>
+    <div class="join">
+      <button
+        class="join-item btn"
+        class:btn-disabled={!$table.getCanPreviousPage()}
+        on:click={() => $table.firstPage()}>First</button
+      >
+
+      <button
+        class="join-item btn"
+        class:btn-disabled={!$table.getCanPreviousPage()}
+        on:click={() => $table.previousPage()}>Previous</button
+      >
+      <button
+        class="join-item btn"
+        class:btn-disabled={!$table.getCanNextPage()}
+        on:click={() => $table.nextPage()}>Next</button
+      >
+      <button
+        class="join-item btn"
+        class:btn-disabled={!$table.getCanNextPage()}
+        on:click={() => $table.lastPage()}>Last</button
+      >
+    </div>
+    <!-- <button on:click={() => rerender()} class="border p-2"> Rerender </button> -->
   </div>
 {/if}

@@ -6,6 +6,7 @@
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur07.png?enhanced&w=400"
   import { TextGenerateEffect } from "$lib/components/ui/TextGenerateEffect"
+  import { success, warning, failure } from "$lib/utils/toast"
   $: queryClient = useQueryClient()
 
   $: adsSales = createQuery({
@@ -35,6 +36,8 @@
 </svelte:head>
 
 <!-- <pre>$isMutating = {JSON.stringify(isMutating, null, 2)}</pre> -->
+
+<button on:click={() => success("Yea")}>SHOW TOAST</button>
 
 <div class="hero min-h-[50vh]">
   <div class="hero-content text-center">
