@@ -1,15 +1,90 @@
 /** @type {import('tailwindcss').Config} */
+import plugin from 'tailwindcss/plugin'
+import typography from '@tailwindcss/typography'
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {},
-    fontFamily: {
-      display: ['Deadknight', 'sans-serif']
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1440px'
+      }
     },
-  },
+    extend: {
+      colors: {
+        magnum: {
+          '50': '#fff9ed',
+          '100': '#fef2d6',
+          '200': '#fce0ac',
+          '300': '#f9c978',
+          '400': '#f7b155',
+          '500': '#f38d1c',
+          '600': '#e47312',
+          '700': '#bd5711',
+          '800': '#964516',
+          '900': '#793a15',
+          '950': '#411c09'
+        }
+      },
+      fontFamily: {
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Fira Sans',
+          'Droid Sans',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol'
+        ],
+        mono: [
+          'ui-monospace',
+          'SFMono-Regular',
+          'SF Mono',
+          'Menlo',
+          'Consolas',
+          'Liberation Mono',
+          'monospace'
+        ],
+        display: ['Deadknight', 'sans-serif']
+      },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            code: {
+              position: 'relative',
+              borderRadius: theme('borderRadius.md')
+            }
+          }
+        }
+      })
+    }
+  },   
   plugins: [
     require('@tailwindcss/typography'),
-    require("daisyui")
+    require("daisyui"),
+    typography,
+    plugin(function ({ addVariant, matchUtilities, theme }) {
+      addVariant('hocus', ['&:hover', '&:focus'])
+      // Square utility
+      matchUtilities(
+        {
+          square: (value) => ({
+            width: value,
+            height: value
+          })
+        },
+        { values: theme('spacing') }
+      )
+    })
   ],
   daisyui: {
     themes: [
@@ -41,6 +116,7 @@ export default {
           "base-300": "#2c2c2c",
           "base-content": "#e0e0e0",
           "success": "#37d399",
+          "success-content": "#24613b",
           "error": "#f77272",
         },
       },

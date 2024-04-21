@@ -2,11 +2,8 @@
   import "../app.css"
   import { onMount } from "svelte"
   import { themeChange } from "theme-change"
-  import { SvelteToast } from "@zerodevx/svelte-toast"
+  import Toaster from "$lib/Toaster.svelte"
 
-  onMount(() => {
-    themeChange(false)
-  })
   import { navigating } from "$app/stores"
   import { expoOut } from "svelte/easing"
   import { slide } from "svelte/transition"
@@ -16,20 +13,13 @@
 
   export let data: LayoutData
 
-  const options = {
-    duration: 4000, // duration of progress bar tween to the `next` value
-    initial: 1, // initial progress bar value
-    next: 0, // next progress value
-    pausable: false, // pause progress bar tween on mouse hover
-    dismissable: true, // allow dismiss with close button
-    reversed: false, // insert new toast to bottom of stack
-    intro: { x: 256 }, // toast intro fly animation settings
-    theme: {}, // css var overrides
-    classes: [], // user-defined classes
-  }
+  onMount(() => {
+    themeChange(false)
+  })
 </script>
 
-<SvelteToast {options} />
+<Toaster />
+
 {#if $navigating}
   <!-- 
     Loading animation for next page since svelte doesn't show any indicator. 
