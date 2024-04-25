@@ -1,7 +1,7 @@
-export async function onRequestGet(context) {
-    // Tutaj używamy context.env, aby odwołać się do zmiennych środowiskowych lub Service Binding
-    return context.env.TRANZAURUS.fetch(context.request);
-}
+// export async function onRequestGet(context) {
+//     // Tutaj używamy context.env, aby odwołać się do zmiennych środowiskowych lub Service Binding
+//     return context.env.TRANZAURUS.fetch(context.request);
+// }
 
 
 // export async function GET({ request }) {
