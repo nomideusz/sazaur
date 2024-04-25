@@ -1,5 +1,8 @@
 import { supabase } from "$lib/supabase/createClient"
-import { success, info, warning, error, neutral } from "$lib/utils/toast"
+import {
+  notifySuccess,
+  notifyWarning,
+} from "$lib/components/ui/Toast/Toaster.svelte"
 export function subscribeToAds(queryClient) {
 
   supabase
@@ -10,7 +13,7 @@ export function subscribeToAds(queryClient) {
     (payload) => {
       const newAd = payload.new;
       queryClient.setQueryData(['ads', 'sales'], oldAds => [newAd, ...oldAds]);
-      success(newAd.title)
+      notifySuccess(newAd.title)
     }
 )
 .on(
@@ -27,7 +30,7 @@ export function subscribeToAds(queryClient) {
     (payload) => {
       const newAd = payload.new;
       queryClient.setQueryData(['ads', 'rental'], oldAds => [newAd, ...oldAds]);
-      success(newAd.title)
+      notifySuccess(newAd.title)
     }
 )
 .on(

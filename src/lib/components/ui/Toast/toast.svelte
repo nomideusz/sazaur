@@ -4,44 +4,44 @@
     melt,
     type Toast,
     type ToastsElements,
-  } from '@melt-ui/svelte';
-  import { fly } from 'svelte/transition';
-  import type { ToastData } from './index.svelte';
-  import { X } from "lucide-svelte";
-  import { writable } from 'svelte/store';
-  import { onMount } from 'svelte';
+  } from "@melt-ui/svelte"
+  import { fly } from "svelte/transition"
+  import type { ToastData } from "./index.svelte"
+  import { X } from "lucide-svelte"
+  import { writable } from "svelte/store"
+  import { onMount } from "svelte"
 
-  export let elements: ToastsElements;
-  $: ({ content, title, description, close } = elements);
+  export let elements: ToastsElements
+  $: ({ content, title, description, close } = elements)
 
-  export let toast: Toast<ToastData>;
-  $: ({ data, id, getPercentage } = toast);
+  export let toast: Toast<ToastData>
+  $: ({ data, id, getPercentage } = toast)
 
-  const percentage = writable(0);
+  const percentage = writable(0)
   const {
     elements: { root: progress },
     options: { max },
   } = createProgress({
     max: 100,
     value: percentage,
-  });
+  })
 
   onMount(() => {
-    let frame: number;
+    let frame: number
     const updatePercentage = () => {
-      percentage.set(getPercentage());
-      frame = requestAnimationFrame(updatePercentage);
-    };
-    frame = requestAnimationFrame(updatePercentage);
+      percentage.set(getPercentage())
+      frame = requestAnimationFrame(updatePercentage)
+    }
+    frame = requestAnimationFrame(updatePercentage)
 
-    return () => cancelAnimationFrame(frame);
-  });
+    return () => cancelAnimationFrame(frame)
+  })
 </script>
 
 <div
   use:melt={$content(id)}
-  in:fly={{ duration: 150, x: '100%' }}
-  out:fly={{ duration: 150, x: '100%' }}
+  in:fly={{ duration: 150, x: "100%" }}
+  out:fly={{ duration: 150, x: "100%" }}
   class="relative rounded-lg bg-neutral-800 text-white shadow-md"
 >
   <div

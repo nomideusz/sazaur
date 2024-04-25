@@ -7,10 +7,6 @@
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur07.png?enhanced&w=400"
   import { TextGenerateEffect } from "$lib/components/ui/TextGenerateEffect"
-
-
-
-
   $: queryClient = useQueryClient()
 
   $: adsSales = createQuery({
