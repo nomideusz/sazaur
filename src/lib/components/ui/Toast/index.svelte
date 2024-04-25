@@ -1,63 +1,47 @@
 <script lang="ts" context="module">
   export type ToastData = {
-    title: string
-    description: string
-    color: string
-  }
+    title: string;
+    description: string;
+    color: string;
+  };
 </script>
 
 <script lang="ts">
-  import { createToaster } from "@melt-ui/svelte"
-  import { flip } from "svelte/animate"
-  import Toast from "./toast.svelte"
+  import { createToaster } from '@melt-ui/svelte';
+  import { flip } from 'svelte/animate';
+  import Toast from './toast.svelte';
 
   const {
     elements,
     helpers: { addToast },
     states: { toasts },
     actions: { portal },
-  } = createToaster<ToastData>()
+  } = createToaster<ToastData>();
 
-  // an example using the default values
-  function create() {
-    addToast({
-      data: {
-        title: "Success",
-        description: "The resource was created!",
-        color: "bg-green-500",
-      },
-    })
-  }
+  const toastData: ToastData[] = [
+    {
+      title: 'Success',
+      description: 'Congratulations! It worked!',
+      color: 'bg-green-500',
+    },
+    {
+      title: 'Warning',
+      description: 'Please check again.',
+      color: 'bg-orange-500',
+    },
+    {
+      title: 'Error',
+      description: 'Something did not work!',
+      color: 'bg-red-500',
+    },
+  ];
 
-  // an example overriding the default values
-  function createImportant() {
-    addToast({
-      data: {
-        title: "Important",
-        description: "Important!!",
-        color: "bg-red-500",
-      },
-      closeDelay: 10000, // override the default closeDelay
-      type: "foreground", // override the default type
-    })
-  }
+
+    addToast({ data: toastData[Math.floor(Math.random() * toastData.length)] });
+  
 </script>
 
-<button
-  class="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3
-font-medium leading-none text-magnum-700 shadow hover:opacity-75"
-  on:click={create}
->
-  Create
-</button>
 
-<button
-  class="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3
-font-medium leading-none text-magnum-700 shadow hover:opacity-75"
-  on:click={createImportant}
->
-  Create Important
-</button>
 
 <div
   class="fixed right-0 top-0 z-50 m-4 flex flex-col items-end gap-2 md:bottom-0 md:top-auto"

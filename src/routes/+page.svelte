@@ -7,13 +7,9 @@
   import { WebsiteName } from "../config"
   import logo from "$lib/img/zaur07.png?enhanced&w=400"
   import { TextGenerateEffect } from "$lib/components/ui/TextGenerateEffect"
-  import { Toast } from "$lib/components/ui/Toast"
-  const elements = {
-    title: "kupa",
-    content: "dupa",
-    descrpiption: "rama",
-    close: true,
-  }
+
+
+
 
   $: queryClient = useQueryClient()
 
@@ -45,7 +41,6 @@
 
 <!-- <pre>$isMutating = {JSON.stringify(isMutating, null, 2)}</pre> -->
 <Popover />
-<Toast {elements} />
 
 <div class="hero min-h-[50vh]">
   <div class="hero-content text-center">

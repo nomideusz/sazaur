@@ -2,7 +2,7 @@
   import "../app.css"
   import { onMount } from "svelte"
   import { themeChange } from "theme-change"
-  import Toaster from "$lib/Toaster.svelte"
+  import Toaster from "$lib/components/ui/Toast/Toaster.svelte"
 
   import { navigating } from "$app/stores"
   import { expoOut } from "svelte/easing"
