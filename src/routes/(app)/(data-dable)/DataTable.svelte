@@ -3,6 +3,9 @@
   import { createQuery } from "@tanstack/svelte-query"
   import { writable } from "svelte/store"
   import { Button, Tabs } from "bits-ui"
+  import { DropdownMenu } from "$lib/components/ui/DropdownMenu"
+  import { Popover } from "$lib/components/ui/Popover"
+  import { ALargeSmall } from "lucide-svelte"
   import {
     createSvelteTable,
     flexRender,
@@ -222,66 +225,10 @@
   }
 </script>
 
-<pre>$ads.status = {JSON.stringify($ads.status, null, 2)}</pre>
+<!-- <pre>$ads.status = {JSON.stringify($ads.status, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().globalFilter, null, 2)}</pre>
-<pre>{JSON.stringify($table.getState().pagination, null, 2)}</pre>
-
-<div class="flex gap-2">
-  <label class="input input-bordered flex items-center gap-2">
-    <input
-      type="text"
-      class="grow"
-      placeholder="Szukaj w tytułach ofert"
-      bind:value={globalFilter}
-      on:keyup={handleKeyUp}
-    />
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      class="w-4 h-4 opacity-70"
-      ><path
-        fill-rule="evenodd"
-        d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-        clip-rule="evenodd"
-      /></svg
-    >
-  </label>
-
-  <button class="btn btn-primary mb-4" on:click={() => ($useXS = !$useXS)}>
-    {#if $useXS}
-      Switch to Detailed View
-    {:else}
-      Switch to Compact View
-    {/if}
-  </button>
-
-  <div class="form-control">
-    <label class="label cursor-pointer place-content-start gap-2">
-      <input
-        checked={$table.getIsAllColumnsVisible()}
-        on:change={(e) => {
-          console.info($table.getToggleAllColumnsVisibilityHandler()(e))
-        }}
-        type="checkbox"
-        class="checkbox checkbox-primary"
-      />
-      <span class="label-text">Toggle All</span>
-    </label>
-    {#each $table.getAllLeafColumns() as column}
-      <label class="label cursor-pointer place-content-start gap-2">
-        <input
-          checked={column.getIsVisible()}
-          on:change={column.getToggleVisibilityHandler()}
-          type="checkbox"
-          class="checkbox checkbox-primary"
-        />
-        <span class="label-text">{column.columnDef.header}</span>
-      </label>
-    {/each}
-  </div>
-</div>
+<pre>{JSON.stringify($table.getState().pagination, null, 2)}</pre> -->
 
 <Tabs.Root class="" value="mieszkania">
   <Tabs.List class="tabs tabs-boxed">
@@ -299,6 +246,74 @@
   <Tabs.Content value="domy" class="pt-3">Domy</Tabs.Content>
   <Tabs.Content value="garaże" class="pt-3">Garaże</Tabs.Content>
 </Tabs.Root>
+
+<div class="mx-auto w-full">
+  <!-- Start coding here -->
+  <div class="relative">
+    <div
+      class="flex flex-col items-center justify-between py-4 space-y-3 md:flex-row md:space-y-0 md:space-x-4"
+    >
+      <div class="w-full md:w-1/2">
+        <label
+          class="input input-bordered input-primary flex items-center gap-2"
+        >
+          <input
+            type="text"
+            class="grow"
+            placeholder="Szukaj w tytułach"
+            bind:value={globalFilter}
+            on:keyup={handleKeyUp}
+          />
+          <kbd class="kbd kbd-sm">⌘</kbd>
+          <kbd class="kbd kbd-sm">K</kbd>
+        </label>
+      </div>
+      <div
+        class="flex flex-col items-stretch justify-end flex-shrink-0 w-full space-y-2 md:w-auto md:flex-row md:space-y-0 md:items-center md:space-x-3"
+      >
+        <button
+          class="btn btn-outline btn-primary"
+          on:click={() => ($useXS = !$useXS)}
+        >
+          <ALargeSmall class={$useXS ? "w-7 h-7" : "w-6 h-6"} />
+        </button>
+        <div class="flex items-center w-full space-x-3 md:w-auto">
+          <Popover label="Filtry" />
+          <DropdownMenu label="Kolumny">
+            <div class="flex gap-2">
+              <div class="form-control">
+                <label class="label cursor-pointer place-content-start gap-2">
+                  <input
+                    checked={$table.getIsAllColumnsVisible()}
+                    on:change={(e) => {
+                      console.info(
+                        $table.getToggleAllColumnsVisibilityHandler()(e),
+                      )
+                    }}
+                    type="checkbox"
+                    class="checkbox checkbox-primary"
+                  />
+                  <span class="label-text">Toggle All</span>
+                </label>
+                {#each $table.getAllLeafColumns() as column}
+                  <label class="label cursor-pointer place-content-start gap-2">
+                    <input
+                      checked={column.getIsVisible()}
+                      on:change={column.getToggleVisibilityHandler()}
+                      type="checkbox"
+                      class="checkbox checkbox-primary"
+                    />
+                    <span class="label-text">{column.columnDef.header}</span>
+                  </label>
+                {/each}
+              </div>
+            </div>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {#if $ads.isLoading}
   <span class="loading loading-ring loading-lg"></span>

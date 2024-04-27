@@ -110,7 +110,7 @@
         </div>
       </form>
 
-      <div class="text-sm text-slate-800 mt-14">
+      <div class="text-sm text-slate-200 mt-14">
         You are logged in as {session?.user?.email}.
         <br />
         <a class="underline" href="/account/sign_out"> Sign out </a>
