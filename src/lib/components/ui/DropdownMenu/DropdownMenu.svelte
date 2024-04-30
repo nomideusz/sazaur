@@ -10,23 +10,11 @@
 
   const {
     elements: { trigger, menu, item, separator, arrow, overlay },
-    builders: { createSubmenu, createMenuRadioGroup, createCheckboxItem },
+    builders: { createCheckboxItem },
     states: { open },
   } = createDropdownMenu({
     forceVisible: true,
     loop: true,
-  })
-
-  const {
-    elements: { subMenu, subTrigger },
-    states: { subOpen },
-  } = createSubmenu()
-
-  const {
-    elements: { radioGroup, radioItem },
-    helpers: { isChecked },
-  } = createMenuRadioGroup({
-    defaultValue: "Hunter Johnston",
   })
 
   const {
@@ -41,12 +29,8 @@
     checked: hideMeltUI,
   })
 
-  const personsArr = [
-    "Hunter Johnston",
-    "Thomas G. Lopes",
-    "Adrian Gonz",
-    "Franck Poingt",
-  ]
+  export let columnsArr = []
+  console.log(columnsArr)
 </script>
 
 <button
@@ -62,56 +46,21 @@
 {#if $open}
   <div use:melt={$overlay} class="fixed inset-0 z-40" />
   <div class="menu" use:melt={$menu} transition:fly={{ duration: 150, y: -10 }}>
+    {#each columnsArr as column}
+      <div class="item" use:melt={$checkboxItem}>
+        <!-- {#if column.getIsVisible()}
+          <Check class="size-4" />
+        {/if} -->
+        {column.columnDef.header}
+      </div>
+    {/each}
     <div class="item" use:melt={$item}>About Melt UI</div>
     <div class="item" use:melt={$item}>Check for Updates...</div>
     <div class="separator" use:melt={$separator} />
-    <slot />
-    <div class="item" use:melt={$checkboxItem}>
-      <div class="check">
-        {#if $settingsSync}
-          <Check class="size-4" />
-        {/if}
-      </div>
-      Settings Sync is On
-    </div>
-    <div class="item !hidden md:!flex" use:melt={$subTrigger}>
-      Profiles
-      <div class="rightSlot">
-        <ChevronRight class="size-4" />
-      </div>
-    </div>
-    {#if $subOpen}
-      <div
-        class="menu subMenu"
-        use:melt={$subMenu}
-        transition:fly={{ x: -50, duration: 150 }}
-      >
-        <div class="text">People</div>
-        <div use:melt={$radioGroup}>
-          {#each personsArr as person}
-            <div class="item" use:melt={$radioItem({ value: person })}>
-              <div class="check">
-                {#if $isChecked(person)}
-                  <div class="dot" />
-                {/if}
-              </div>
-              {person}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
+    <!-- <slot /> -->
+
     <div use:melt={$separator} class="separator" />
 
-    <div class="item" use:melt={$checkboxItemA}>
-      <div class="check">
-        {#if $hideMeltUI}
-          <Check class="size-4" />
-        {/if}
-      </div>
-      Hide Melt UI
-      <div class="rightSlot">⌘H</div>
-    </div>
     <div class="item" use:melt={$item} data-disabled>
       Show All Components
       <div class="rightSlot">⇧⌘N</div>

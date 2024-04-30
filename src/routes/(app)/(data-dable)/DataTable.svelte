@@ -6,30 +6,34 @@
   import { DropdownMenu } from "$lib/components/ui/DropdownMenu"
   import { Popover } from "$lib/components/ui/Popover"
   import { ALargeSmall } from "lucide-svelte"
+  import { priceFormatter, squareMeterFormatter } from "$lib/utils/formatter"
   import {
     createSvelteTable,
     flexRender,
     getCoreRowModel,
-    getSortedRowModel,
     getFilteredRowModel,
+    getSortedRowModel,
     getPaginationRowModel,
   } from "@tanstack/svelte-table"
   import type {
     ColumnDef,
     OnChangeFn,
+    FilterFn,
+    FilterFnOption,
     SortingState,
     TableOptions,
     VisibilityState,
     PaginationState,
+    ColumnFiltersTableState,
+    ColumnFiltersState,
+    GlobalFilterColumn,
+    ColumnFilter,
   } from "@tanstack/svelte-table"
   import type { Ad } from "$lib/types"
+
   export let category: string
 
   let useXS = writable(false)
-  $: ads = createQuery<Ad[], Error>({
-    queryKey: ["ads", category],
-    queryFn: () => api().getAdsByCategory(category),
-  })
 
   const defaultColumns: ColumnDef<Ad>[] = [
     {
@@ -38,20 +42,20 @@
       header: "id",
       footer: (info) => info.column.id,
       enableColumnFilter: false,
-      enableGlobalFilter: false,
     },
     {
-      accessorFn: (row) => row.title,
-      filterFn: "includesString",
-      sortingFn: "text",
-      id: "title",
+      accessorKey: "title",
       cell: (info) => info.getValue(),
       header: "tytuł",
       footer: (info) => info.column.id,
+      filterFn: "includesString",
+      sortingFn: "text",
+      enableHiding: false,
     },
     {
       accessorKey: "price",
       filterFn: "inNumberRange",
+      cell: (info) => priceFormatter(info.getValue()),
       header: "cena",
       footer: (info) => info.column.id,
       enableGlobalFilter: false,
@@ -78,12 +82,14 @@
       accessorKey: "sqm",
       header: "powierzchnia",
       filterFn: "inNumberRange",
+      cell: (info) => squareMeterFormatter(info.getValue()),
       footer: (info) => info.column.id,
       enableGlobalFilter: false,
     },
     {
       accessorKey: "price_per_sqm",
       header: "cena za m2",
+      cell: (info) => priceFormatter(info.getValue()),
       filterFn: "inNumberRange",
       footer: (info) => info.column.id,
       enableGlobalFilter: false,
@@ -126,11 +132,9 @@
     },
   ]
 
-  let sorting: SortingState = []
-  let columnVisibility: VisibilityState = {}
-  let globalFilter = ""
-  let pagination = { pageIndex: 0, pageSize: 50 } //default pagination
+  let titleFilter = ""
 
+  let sorting: SortingState = []
   const setSorting: OnChangeFn<SortingState> = (updater) => {
     if (updater instanceof Function) {
       sorting = updater(sorting)
@@ -146,6 +150,13 @@
     }))
   }
 
+  let columnVisibility: VisibilityState = {
+    id: false,
+    city: false,
+    ad_link: false,
+    image_url: false,
+    property_type: false,
+  }
   const setColumnVisibility: OnChangeFn<VisibilityState> = (updater) => {
     if (updater instanceof Function) {
       columnVisibility = updater(columnVisibility)
@@ -161,7 +172,8 @@
     }))
   }
 
-  const setPagination = (updater) => {
+  let pagination: PaginationState = { pageIndex: 0, pageSize: 50 }
+  const setPagination: OnChangeFn<PaginationState> = (updater) => {
     if (updater instanceof Function) {
       pagination = updater(pagination)
     } else {
@@ -176,6 +188,11 @@
     }))
   }
 
+  $: ads = createQuery<Ad[], Error>({
+    queryKey: ["ads", category],
+    queryFn: () => api().getAdsByCategory(category),
+  })
+
   $: options = writable<TableOptions<Ad>>({
     data: $ads.data,
     columns: defaultColumns,
@@ -187,14 +204,9 @@
         "price",
         "sqm",
         "price_per_sqm",
-      ], //customize the initial column order
-      columnVisibility: {
-        id: false,
-        city: false,
-        ad_link: false,
-        image_url: false,
-      },
-      expanded: true, //expand all rows by default
+      ],
+      expanded: true,
+      globalFilter: titleFilter,
     },
     state: {
       sorting,
@@ -203,21 +215,14 @@
     },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
+    getFilteredRowModel: getFilteredRowModel(),
     isMultiSortEvent: (e) => e.ctrlKey || e.shiftKey,
     debugTable: true,
   })
-
-  const rerender = () => {
-    options.update((options) => ({
-      ...options,
-      data: $ads.data,
-    }))
-  }
 
   $: table = createSvelteTable(options)
   const handleKeyUp = (e: any) => {
@@ -227,8 +232,8 @@
 
 <!-- <pre>$ads.status = {JSON.stringify($ads.status, null, 2)}</pre>
 <pre>{JSON.stringify($table.getState().sorting, null, 2)}</pre>
-<pre>{JSON.stringify($table.getState().globalFilter, null, 2)}</pre>
-<pre>{JSON.stringify($table.getState().pagination, null, 2)}</pre> -->
+<pre>{JSON.stringify($table.getState().globalFilter, null, 2)}</pre>-->
+<!-- <pre>{JSON.stringify($table.getState(), null, 2)}</pre> -->
 
 <Tabs.Root class="" value="mieszkania">
   <Tabs.List class="tabs tabs-boxed">
@@ -260,9 +265,9 @@
           <input
             type="text"
             class="grow"
-            placeholder="Szukaj w tytułach"
-            bind:value={globalFilter}
+            bind:value={titleFilter}
             on:keyup={handleKeyUp}
+            placeholder="Szukaj w tytułach"
           />
           <kbd class="kbd kbd-sm">⌘</kbd>
           <kbd class="kbd kbd-sm">K</kbd>
@@ -279,7 +284,7 @@
         </button>
         <div class="flex items-center w-full space-x-3 md:w-auto">
           <Popover label="Filtry" />
-          <DropdownMenu label="Kolumny">
+          <DropdownMenu label="Kolumny" columnsArr={$table.getAllColumns()}>
             <div class="flex gap-2">
               <div class="form-control">
                 <label class="label cursor-pointer place-content-start gap-2">
@@ -295,10 +300,11 @@
                   />
                   <span class="label-text">Toggle All</span>
                 </label>
-                {#each $table.getAllLeafColumns() as column}
+                {#each $table.getAllColumns() as column}
                   <label class="label cursor-pointer place-content-start gap-2">
                     <input
                       checked={column.getIsVisible()}
+                      disabled={!column.getCanHide()}
                       on:change={column.getToggleVisibilityHandler()}
                       type="checkbox"
                       class="checkbox checkbox-primary"
@@ -367,12 +373,28 @@
           <tr>
             {#each row.getVisibleCells() as cell}
               <td>
-                <svelte:component
-                  this={flexRender(
-                    cell.column.columnDef.cell,
-                    cell.getContext(),
-                  )}
-                />
+                {#if cell.column.columnDef.accessorKey === "title"}
+                  <a
+                    href={row.original.ad_link}
+                    title={row.original.title}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svelte:component
+                      this={flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    />
+                  </a>
+                {:else}
+                  <svelte:component
+                    this={flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  />
+                {/if}
               </td>
             {/each}
           </tr>
