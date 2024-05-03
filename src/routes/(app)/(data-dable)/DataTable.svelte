@@ -4,6 +4,7 @@
   import { writable } from "svelte/store"
   import { Button, Tabs } from "bits-ui"
   import { DropdownMenu } from "$lib/components/ui/DropdownMenu"
+  import ColumnsVisibility from "./ColumnsVisibility.svelte"
   import { Popover } from "$lib/components/ui/Popover"
   import { ALargeSmall } from "lucide-svelte"
   import { priceFormatter, squareMeterFormatter } from "$lib/utils/formatter"
@@ -284,8 +285,8 @@
         </button>
         <div class="flex items-center w-full space-x-3 md:w-auto">
           <Popover label="Filtry" />
-          <DropdownMenu label="Kolumny" columnsArr={$table.getAllColumns()}>
-            <div class="flex gap-2">
+          <ColumnsVisibility label="Kolumny" table={$table}>
+            <!-- <div class="flex gap-2">
               <div class="form-control">
                 <label class="label cursor-pointer place-content-start gap-2">
                   <input
@@ -313,8 +314,8 @@
                   </label>
                 {/each}
               </div>
-            </div>
-          </DropdownMenu>
+            </div> -->
+          </ColumnsVisibility>
         </div>
       </div>
     </div>
